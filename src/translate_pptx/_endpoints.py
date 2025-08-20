@@ -1,41 +1,50 @@
 from functools import lru_cache
 import os
 from pathlib import Path
+import getpass
 
-def load_dotenv():
-    """Load environment variables from .env file if it exists."""
-    try:
-        from dotenv import load_dotenv as _load_dotenv
-        # Look for .env file in current directory and parent directories
-        current_dir = Path.cwd()
-        for parent in [current_dir] + list(current_dir.parents):
-            env_file = parent / '.env'
-            if env_file.exists():
-                _load_dotenv(env_file)
-                break
-    except ImportError:
-        # python-dotenv not installed, continue without it
-        pass
+def get_api_key_from_user():
+    """Get OpenAI API key from user input."""
+    print("🔑 OpenAI API Key Required")
+    print("=" * 40)
+    print("You need an OpenAI API key to use translate-pptx.")
+    print("Get your API key from: https://platform.openai.com/api-keys")
+    print()
+    
+    # Try to get API key from environment variable first
+    api_key = os.getenv('OPENAI_API_KEY')
+    if api_key and api_key != 'your_openai_api_key_here':
+        print("✅ Using API key from environment variable")
+        return api_key
+    
+    # If not available, prompt user to input
+    while True:
+        api_key = getpass.getpass("Enter your OpenAI API key: ").strip()
+        if api_key:
+            # Set environment variable for this session
+            os.environ['OPENAI_API_KEY'] = api_key
+            print("✅ API key set successfully")
+            return api_key
+        else:
+            print("❌ No API key provided. Please try again.")
 
 @lru_cache(maxsize=128)
-def prompt_openai(message: str, model="gpt-4o-2024-11-20"):
+def prompt_openai(message: str, model="gpt-4o-2024-11-20", api_key=None):
     """A prompt helper function that sends a message to openAI
     and returns only the text response.
     Results are cached to optimize for repeated queries.
     """
     import openai
     
-    # Load environment variables from .env file
-    load_dotenv()
+    # Get API key from parameter, environment, or user input
+    if api_key is None:
+        api_key = os.getenv('OPENAI_API_KEY')
     
-    # Check if API key is available
-    api_key = os.getenv('OPENAI_API_KEY')
+    if not api_key or api_key == 'your_openai_api_key_here':
+        api_key = get_api_key_from_user()
+    
     if not api_key:
-        raise ValueError(
-            "OpenAI API key not found. Please set the OPENAI_API_KEY environment variable "
-            "or create a .env file with your API key. You can copy .env.example to .env "
-            "and fill in your actual API key."
-        )
+        raise ValueError("OpenAI API key is required to use this function.")
 
     message = [{"role": "user", "content": message}]
 
