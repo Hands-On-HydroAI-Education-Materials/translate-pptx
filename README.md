@@ -40,7 +40,45 @@ translate-pptx can be installed using pip:
 pip install translate-pptx
 ```
 
-Please note that you must set an `OPENAI_API_KEY` environment variable to use this tool.
+## Configuration
+
+### OpenAI API Key Setup
+
+You need to set up your OpenAI API key to use this tool. There are two ways to do this:
+
+#### Option 1: Using a .env file (Recommended)
+
+**Quick Setup (Recommended):**
+```bash
+# Run the interactive setup script
+python setup_env.py
+```
+
+**Manual Setup:**
+1. Create a `.env` file in your project directory:
+```bash
+# Create the .env file
+touch .env
+
+# Edit the .env file and add your API key
+nano .env
+```
+
+2. Add your OpenAI API key to the `.env` file:
+```
+OPENAI_API_KEY=your_actual_api_key_here
+```
+
+#### Option 2: Environment Variable
+
+Set the `OPENAI_API_KEY` environment variable:
+
+```bash
+export OPENAI_API_KEY=your_actual_api_key_here
+```
+
+> [!NOTE]
+> The .env file method is recommended as it's more convenient and the file is automatically ignored by git for security.
 
 ## Contributing
 
